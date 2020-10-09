@@ -7,7 +7,7 @@ const timeDict = {
   s: "Seconds", // 0-59
   w: "Week" // will need separate functionality for this too as weeks don't exist
 };
-const timeOrder = "yMdhms";
+const timeOrder = " yMdhms";
 
 const parse = dateString => {
   const now = new SuperDate();
@@ -78,7 +78,6 @@ class SuperDate {
   }
   performRounding(topUnitToRound) {
     const arrayToRound = timeOrder.split(topUnitToRound)[1].split("");
-    console.log(arrayToRound);
     arrayToRound.forEach(unitStr => {
       console.log(this.date);
       let value = 0;
