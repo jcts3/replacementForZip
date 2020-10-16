@@ -12,22 +12,21 @@ const timeOrder = " yMdhms";
 const parse = dateString => {
   const now = new SuperDate();
 
-  const length = dateString.length;
-  const splitArray = dateString.match(/.{1,3}/g);
+  const splitArray = getSplitArray(dateString);
   // split up every 3 characters
-  splitArray.shift();
+  // splitArray.shift();
   // removes the 'now', which is redundant as it's in every option
 
   let roundingString = "";
-  if (length % 3 !== 0) {
+  if (splitArray[splitArray.length - 1].length === 2) {
     // Contains rounding (as rounding using 2chars, all others use 3)
     roundingString = splitArray.pop();
   }
   splitArray.forEach(str => {
     const sign = str[0];
-    const value = str[1];
-    const unit = timeDict[str[2]];
-    console.log({ sign, value, unit });
+    const value = str.match(/\d{1,2}/g);
+    const unit = timeDict[str.substr(-1)];
+
     now[`change${unit}`](sign, value);
   });
   if (roundingString !== "") {
@@ -38,7 +37,7 @@ const parse = dateString => {
 
 class SuperDate {
   constructor() {
-    this.date = new Date();
+    this.date = new Date(Date.now());
   }
 
   changeDate(sign, value) {
@@ -79,7 +78,6 @@ class SuperDate {
   performRounding(topUnitToRound) {
     const arrayToRound = timeOrder.split(topUnitToRound)[1].split("");
     arrayToRound.forEach(unitStr => {
-      console.log(this.date);
       let value = 0;
       if (unitStr === "d") {
         value = 1;
@@ -94,6 +92,8 @@ class SuperDate {
   }
 }
 
+const getSplitArray = dateString => dateString.match(/([-+/](\d|\w){1,3})/g);
+
 const useSign = {
   "+": (x, y) => parseInt(x) + parseInt(y),
   "-": (x, y) => parseInt(x) - parseInt(y),
@@ -101,5 +101,8 @@ const useSign = {
 };
 
 module.exports = {
-  parse
+  parse,
+  SuperDate,
+  getSplitArray,
+  useSign
 };

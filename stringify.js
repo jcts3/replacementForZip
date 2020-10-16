@@ -13,8 +13,8 @@ const example = "2020-05-01T00:00:00";
 
 // Presuming that all week sized differences can be presented in terms of days.
 const stringify = dateObj => {
-  const now = new Date().valueOf(); // taking Epoch time makes things a world easier..
-  const then = new Date(dateObj).valueOf();
+  const now = new Date(Date.now()).valueOf(); // taking Epoch time makes things a world easier..
+  const then = new Date(`${dateObj}Z`).valueOf(); // presume all inputs are in UTC.
   let sign = "-";
   let diff = now - then;
   if (diff < 0) {
@@ -26,10 +26,13 @@ const stringify = dateObj => {
   const unitArray = timeOrder.split("");
   const diffArray = unitArray.map(unitStr => {
     const unit = timeDict[unitStr];
-    console.log({ unit, now, then });
-    let diffUnit = diffDate[`get${unit}`]();
+    let diffUnit =
+      unitStr === "h" ? diffDate[`getUTC${unit}`]() : diffDate[`get${unit}`]();
+
     if (unitStr === "y") {
       diffUnit = diffUnit - 70; // because of year0 = 1900
+    } else if (unitStr === "d") {
+      diffUnit = diffUnit - 1;
     }
 
     return { unitStr, diffUnit };
@@ -39,7 +42,9 @@ const stringify = dateObj => {
 
 const buildExpression = (array, sign) => {
   return array.reduce((acc, cur) => {
-    return `${acc}${sign}${cur.diffUnit}${cur.unitStr}`;
+    return cur.diffUnit == 0
+      ? acc
+      : `${acc}${sign}${cur.diffUnit}${cur.unitStr}`;
   }, "now");
 };
 
